@@ -1,4 +1,3 @@
-// src/models/Labyrinthe.java
 package models;
 
 import java.util.Observable;
@@ -38,22 +37,23 @@ public class Labyrinthe extends Observable {
     }
 
     public void setCaseStatut(int x, int y, Case.Statut statut) {
-        if (statut == Case.Statut.DEPART && depart != null) {
-            depart.setStatut(Case.Statut.VIDE);
-            setChanged();
-            notifyObservers(depart);
-        } else if (statut == Case.Statut.ARRIVEE && arrivee != null) {
-            arrivee.setStatut(Case.Statut.VIDE);
-            setChanged();
-            notifyObservers(arrivee);
+        if (statut == Case.Statut.DEPART) {
+            if (depart != null) {
+                depart.setStatut(Case.Statut.VIDE);
+                setChanged();
+                notifyObservers(depart);
+            }
+            depart = grille[x][y];
+        } else if (statut == Case.Statut.ARRIVEE) {
+            if (arrivee != null) {
+                arrivee.setStatut(Case.Statut.VIDE);
+                setChanged();
+                notifyObservers(arrivee);
+            }
+            arrivee = grille[x][y];
         }
 
         grille[x][y].setStatut(statut);
-        if (statut == Case.Statut.DEPART) {
-            depart = grille[x][y];
-        } else if (statut == Case.Statut.ARRIVEE) {
-            arrivee = grille[x][y];
-        }
         setChanged();
         notifyObservers(grille[x][y]);
     }

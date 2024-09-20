@@ -1,19 +1,17 @@
-// src/vues/VueGrille.java
 package vues;
+
+import models.Case;
+import models.Labyrinthe;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Observable;
 import java.util.Observer;
-import models.Case;
-import models.Labyrinthe;
 
 public class VueGrille extends JPanel implements Observer {
     private JButton[][] buttons;
     private Labyrinthe labyrinthe;
-    private Case.Statut currentStatut = Case.Statut.VIDE; // Default to VIDE
+    private Case.Statut currentStatut = Case.Statut.VIDE;
 
     public VueGrille(int largeur, int hauteur, Labyrinthe labyrinthe) {
         this.labyrinthe = labyrinthe;
@@ -24,13 +22,10 @@ public class VueGrille extends JPanel implements Observer {
                 JButton button = new JButton();
                 button.setBackground(Color.WHITE);
                 buttons[i][j] = button;
-                int x = i;
-                int y = j;
-                button.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        labyrinthe.setCaseStatut(x, y, currentStatut);
-                    }
+                final int x = i;
+                final int y = j;
+                button.addActionListener(e -> {
+                    labyrinthe.setCaseStatut(x, y, currentStatut);
                 });
                 this.add(button);
             }
@@ -41,13 +36,13 @@ public class VueGrille extends JPanel implements Observer {
         this.currentStatut = statut;
     }
 
-    public JButton getButtonForCase(Case c) {
-        return buttons[c.getX()][c.getY()];
-    }
-
-    public void updateButtonColor(JButton button, Color color) {
-        if (button.getBackground() != Color.GREEN && button.getBackground() != Color.RED) {
-            button.setBackground(color);
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg instanceof Case) {
+            Case updatedCase = (Case) arg;
+            int x = updatedCase.getX();
+            int y = updatedCase.getY();
+            updateButtonColor(buttons[x][y], updatedCase.getStatut());
         }
     }
 
@@ -68,26 +63,24 @@ public class VueGrille extends JPanel implements Observer {
         }
     }
 
+    public void updateButtonColor(JButton button, Color color) {
+        if (button.getBackground() != Color.GREEN && button.getBackground() != Color.RED) {
+            button.setBackground(color);
+        }
+    }
+
+    public JButton getButtonForCase(Case c) {
+        return buttons[c.getX()][c.getY()];
+    }
+
     public void resetPathColors() {
         for (int i = 0; i < buttons.length; i++) {
             for (int j = 0; j < buttons[i].length; j++) {
                 JButton button = buttons[i][j];
-                if (button.getBackground() == Color.YELLOW) {
+                if (button.getBackground() == Color.YELLOW || button.getBackground() == Color.CYAN) {
                     button.setBackground(Color.WHITE);
                 }
             }
-        }
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-        if (arg instanceof Case) {
-            Case updatedCase = (Case) arg;
-            JButton button = getButtonForCase(updatedCase);
-            if (button != null) {
-                updateButtonColor(button, updatedCase.getStatut());
-            }
-            System.out.println("VueGrille mise à jour avec: " + updatedCase.getStatut());
         }
     }
 }

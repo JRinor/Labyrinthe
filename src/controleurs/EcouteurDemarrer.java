@@ -1,4 +1,3 @@
-// src/controleurs/EcouteurDemarrer.java
 package controleurs;
 
 import models.Case;
@@ -44,22 +43,22 @@ public class EcouteurDemarrer implements ActionListener {
 
         switch (selectedAlgo) {
             case "AStar":
-                result = new AStar().search(labyrinthe, start, goal);
+                result = new AStar(vueGrille).search(labyrinthe, start, goal);
                 break;
             case "BreadthFirstSearch":
-                result = new BreadthFirstSearch().search(labyrinthe, start, goal);
+                result = new BreadthFirstSearch(vueGrille).search(labyrinthe, start, goal);
                 break;
             case "DepthFirstSearch":
-                result = new DepthFirstSearch().search(labyrinthe, start, goal);
+                result = new DepthFirstSearch(vueGrille).search(labyrinthe, start, goal);
                 break;
             case "Dijkstra":
-                result = new Dijkstra().search(labyrinthe, start, goal);
+                result = new Dijkstra(vueGrille).search(labyrinthe, start, goal);
                 break;
             case "GreedyBestFirstSearch":
-                result = new GreedyBestFirstSearch().search(labyrinthe, start, goal);
+                result = new GreedyBestFirstSearch(vueGrille).search(labyrinthe, start, goal);
                 break;
             case "IDAStar":
-                result = new IDAStar().search(labyrinthe, start, goal);
+                result = new IDAStar(vueGrille).search(labyrinthe, start, goal);
                 break;
         }
 
@@ -67,15 +66,21 @@ public class EcouteurDemarrer implements ActionListener {
             List<Case> allVisited = result.get("allVisited");
             List<Case> shortestPath = result.get("shortestPath");
 
-            for (Case c : allVisited) {
-                vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
-            }
-
-            for (Case c : shortestPath) {
-                vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.CYAN);
+            if (shortestPath != null) {
+                for (Case c : allVisited) {
+                    if (!shortestPath.contains(c)) {
+                        vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
+                    }
+                }
+                for (Case c : shortestPath) {
+                    vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.CYAN);
+                }
+                System.out.println("Chemin trouvé de longueur : " + shortestPath.size());
+            } else {
+                System.out.println("Aucun chemin trouvé");
             }
         } else {
-            System.out.println("No path found");
+            System.out.println("Erreur lors de l'exécution de l'algorithme");
         }
     }
 }

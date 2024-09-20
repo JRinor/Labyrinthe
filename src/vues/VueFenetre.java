@@ -13,7 +13,7 @@ public class VueFenetre {
         labyrinthe = new Labyrinthe(10, 10);
 
         frame = new JFrame("Labyrinthe");
-        frame.setSize(700, 600);
+        frame.setSize(900, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 

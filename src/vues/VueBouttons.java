@@ -1,15 +1,11 @@
-// src/vues/VueBouttons.java
 package vues;
 
-import controleurs.EcouteurDemarrer;
-import controleurs.EcouteurQuitter;
+import controleurs.*;
 import models.Case;
 import models.Labyrinthe;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -31,7 +27,7 @@ public class VueBouttons extends JPanel implements Observer {
         buttonDepart = createButton("Depart", Case.Statut.DEPART);
         buttonArrivee = createButton("Arrivee", Case.Statut.ARRIVEE);
         buttonVide = createButton("Vide", Case.Statut.VIDE);
-        buttonVide.setBackground(Color.WHITE); // Set default selected button color
+        buttonVide.setBackground(Color.WHITE);
 
         comboBox = new JComboBox<>(new String[]{"AStar", "BreadthFirstSearch", "DepthFirstSearch", "Dijkstra", "GreedyBestFirstSearch", "IDAStar"});
         JButton buttonDemarrer = new JButton("Demarrer");
@@ -52,8 +48,10 @@ public class VueBouttons extends JPanel implements Observer {
 
     private JButton createButton(String text, Case.Statut statut) {
         JButton button = new JButton(text);
-        button.setActionCommand(statut.name());
-        button.addActionListener(new ButtonActionListener());
+        button.addActionListener(e -> {
+            vueGrille.setCurrentStatut(statut);
+            updateButtonColors(statut);
+        });
         return button;
     }
 
@@ -69,15 +67,6 @@ public class VueBouttons extends JPanel implements Observer {
 
         buttonVide.setBackground(selectedStatut == Case.Statut.VIDE ? Color.WHITE : null);
         buttonVide.setForeground(selectedStatut == Case.Statut.VIDE ? Color.BLACK : null);
-    }
-
-    private class ButtonActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            Case.Statut statut = Case.Statut.valueOf(e.getActionCommand());
-            vueGrille.setCurrentStatut(statut);
-            updateButtonColors(statut);
-        }
     }
 
     @Override
