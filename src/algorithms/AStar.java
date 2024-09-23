@@ -17,10 +17,11 @@ public class AStar {
 
     public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
         Map<Case, Integer> costSoFar = new HashMap<>();
-        PriorityQueue<Case> frontier = new PriorityQueue<>(Comparator.comparingInt(c ->
-                costSoFar.getOrDefault(c, Integer.MAX_VALUE) + ManhattanHeuristic.calculate(c, goal)));
+        PriorityQueue<Case> frontier = new PriorityQueue<>(
+                Comparator.comparingInt(c -> costSoFar.getOrDefault(c, Integer.MAX_VALUE) + ManhattanHeuristic.calculate(c, goal))
+        );
         Map<Case, Case> cameFrom = new HashMap<>();
-        List<Case> allVisited = new ArrayList<>();
+        Set<Case> allVisited = new HashSet<>();
 
         frontier.add(start);
         cameFrom.put(start, null);
@@ -29,15 +30,13 @@ public class AStar {
         while (!frontier.isEmpty()) {
             Case current = frontier.poll();
             allVisited.add(current);
-            updateUI(current); // Affichage en temps réel
 
             if (current.equals(goal)) {
                 break;
             }
 
-            List<Case> neighbors = getNeighbors(current, labyrinthe);
-            for (Case next : neighbors) {
-                int newCost = costSoFar.get(current) + 1; // Coût uniforme de 1
+            for (Case next : getNeighbors(current, labyrinthe)) {
+                int newCost = costSoFar.get(current) + 1;
                 if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
                     costSoFar.put(next, newCost);
                     int priority = newCost + ManhattanHeuristic.calculate(next, goal);
@@ -45,17 +44,20 @@ public class AStar {
                     cameFrom.put(next, current);
                 }
             }
+
+            updateUI(current);
         }
 
         Map<String, List<Case>> result = new HashMap<>();
         result.put("shortestPath", reconstructPath(cameFrom, start, goal));
-        result.put("allVisited", allVisited);
+        result.put("allVisited", new ArrayList<>(allVisited));
         return result;
     }
 
     private List<Case> getNeighbors(Case current, Labyrinthe labyrinthe) {
         List<Case> neighbors = new ArrayList<>();
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; // droite, gauche, bas, haut
+
         for (int[] dir : directions) {
             int newX = current.getX() + dir[0];
             int newY = current.getY() + dir[1];
@@ -87,11 +89,11 @@ public class AStar {
 
     private void updateUI(Case c) {
         SwingUtilities.invokeLater(() -> {
-            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
             try {
-                Thread.sleep(100); // Délai de 100ms pour ralentir l'affichage
+                vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
+                Thread.sleep(50); // Réduit le délai pour une exécution plus rapide
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         });
     }

@@ -6,10 +6,11 @@ import vues.VueGrille;
 
 import java.awt.Color;
 import java.util.*;
+import javax.swing.SwingUtilities;
 
 public class DepthFirstSearch {
     private VueGrille vueGrille;
-    private List<Case> allVisited;
+    private Set<Case> allVisited;
     private Map<Case, Case> cameFrom;
     private boolean found;
 
@@ -18,20 +19,20 @@ public class DepthFirstSearch {
     }
 
     public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
-        allVisited = new ArrayList<>();
+        allVisited = new HashSet<>();
         cameFrom = new HashMap<>();
         found = false;
-
         dfs(start, goal, labyrinthe);
 
         Map<String, List<Case>> result = new HashMap<>();
         result.put("shortestPath", found ? reconstructPath(cameFrom, start, goal) : null);
-        result.put("allVisited", allVisited);
+        result.put("allVisited", new ArrayList<>(allVisited));
         return result;
     }
 
     private void dfs(Case current, Case goal, Labyrinthe labyrinthe) {
         allVisited.add(current);
+        updateUI(current);
 
         if (current.equals(goal)) {
             found = true;
@@ -43,6 +44,7 @@ public class DepthFirstSearch {
             if (!allVisited.contains(next) && !found) {
                 cameFrom.put(next, current);
                 dfs(next, goal, labyrinthe);
+                if (found) return;
             }
         }
     }
@@ -50,6 +52,7 @@ public class DepthFirstSearch {
     private List<Case> getNeighbors(Case current, Labyrinthe labyrinthe) {
         List<Case> neighbors = new ArrayList<>();
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; // droite, gauche, bas, haut
+
         for (int[] dir : directions) {
             int newX = current.getX() + dir[0];
             int newY = current.getY() + dir[1];
@@ -77,5 +80,16 @@ public class DepthFirstSearch {
         } else {
             return null; // Aucun chemin trouvé
         }
+    }
+
+    private void updateUI(Case c) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
+                Thread.sleep(50); // Réduit le délai pour une exécution plus rapide
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
     }
 }

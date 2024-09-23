@@ -18,13 +18,14 @@ public class BreadthFirstSearch {
     public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
         Queue<Case> frontier = new LinkedList<>();
         Map<Case, Case> cameFrom = new HashMap<>();
-        List<Case> allVisited = new ArrayList<>();
+        Set<Case> allVisited = new HashSet<>();
+
         frontier.add(start);
         cameFrom.put(start, null);
+        allVisited.add(start);
 
         while (!frontier.isEmpty()) {
             Case current = frontier.poll();
-            allVisited.add(current);
 
             if (current.equals(goal)) {
                 break;
@@ -32,9 +33,10 @@ public class BreadthFirstSearch {
 
             List<Case> neighbors = getNeighbors(current, labyrinthe);
             for (Case next : neighbors) {
-                if (!cameFrom.containsKey(next)) {
+                if (!allVisited.contains(next)) {
                     frontier.add(next);
                     cameFrom.put(next, current);
+                    allVisited.add(next);
                     updateUI(next);
                 }
             }
@@ -42,13 +44,14 @@ public class BreadthFirstSearch {
 
         Map<String, List<Case>> result = new HashMap<>();
         result.put("shortestPath", reconstructPath(cameFrom, start, goal));
-        result.put("allVisited", allVisited);
+        result.put("allVisited", new ArrayList<>(allVisited));
         return result;
     }
 
     private List<Case> getNeighbors(Case current, Labyrinthe labyrinthe) {
         List<Case> neighbors = new ArrayList<>();
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; // droite, gauche, bas, haut
+
         for (int[] dir : directions) {
             int newX = current.getX() + dir[0];
             int newY = current.getY() + dir[1];
@@ -80,11 +83,11 @@ public class BreadthFirstSearch {
 
     private void updateUI(Case c) {
         SwingUtilities.invokeLater(() -> {
-            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
             try {
-                Thread.sleep(100); // Délai de 100ms pour ralentir l'affichage
+                vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
+                Thread.sleep(50); // Réduit le délai pour une exécution plus rapide
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         });
     }
