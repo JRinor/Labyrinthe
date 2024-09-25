@@ -1,5 +1,3 @@
-// Time for executions: ... s, Number of generator states: .. Path found ? : true length :13
-
 package vues;
 
 import javax.swing.*;
@@ -9,8 +7,10 @@ import models.Case;
 
 public class VueAffichage extends JPanel implements Observer {
 
+    private JLabel label;
+
     public VueAffichage() {
-        JLabel label = new JLabel("Contenu en bas");
+        label = new JLabel("Contenu en bas");
         this.add(label);
     }
 
@@ -18,7 +18,10 @@ public class VueAffichage extends JPanel implements Observer {
     public void update(Observable o, Object arg) {
         if (arg instanceof Case) {
             Case updatedCase = (Case) arg;
-            System.out.println("VueAffichage mise à jour avec: " + updatedCase.getStatut());
+            SwingUtilities.invokeLater(() -> {
+                System.out.println("VueAffichage mise à jour avec: " + updatedCase.getStatut());
+                // Update the label or other UI components if needed
+            });
         }
     }
 }

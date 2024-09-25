@@ -7,11 +7,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class EcouteurDepart implements ActionListener {
-    private Labyrinthe labyrinthe;
+    private final Labyrinthe labyrinthe;
     private int x;
     private int y;
 
     public EcouteurDepart(Labyrinthe labyrinthe) {
+        if (labyrinthe == null) {
+            throw new IllegalArgumentException("Labyrinthe cannot be null");
+        }
         this.labyrinthe = labyrinthe;
     }
 

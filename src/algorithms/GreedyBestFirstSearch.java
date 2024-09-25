@@ -5,29 +5,40 @@ import models.Labyrinthe;
 import vues.VueGrille;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.Color;
 import java.util.*;
 
 public class GreedyBestFirstSearch {
     private VueGrille vueGrille;
+    private List<Case> bestPath;
+    private List<Case> allVisited;
 
     public GreedyBestFirstSearch(VueGrille vueGrille) {
         this.vueGrille = vueGrille;
     }
 
     public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
+        if (start == null || goal == null) {
+            throw new IllegalArgumentException("Start and goal cannot be null");
+        }
+
+        bestPath = null;
+        allVisited = new ArrayList<>();
         PriorityQueue<Case> frontier = new PriorityQueue<>(Comparator.comparingInt(c -> ManhattanHeuristic.calculate(c, goal)));
         Map<Case, Case> cameFrom = new HashMap<>();
-        List<Case> allVisited = new ArrayList<>();
         frontier.add(start);
         cameFrom.put(start, null);
+
+        long startTime = System.currentTimeMillis();
 
         while (!frontier.isEmpty()) {
             Case current = frontier.poll();
             allVisited.add(current);
-            updateUI(current); // Affichage en temps réel
+            updateUI(current);
 
             if (current.equals(goal)) {
+                bestPath = reconstructPath(cameFrom, start, goal);
                 break;
             }
 
@@ -40,8 +51,14 @@ public class GreedyBestFirstSearch {
             }
         }
 
+        long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
+
+        System.out.println("Temps d'exécution : " + executionTime + " ms");
+        System.out.println("Nombre de cases explorées : " + allVisited.size());
+
         Map<String, List<Case>> result = new HashMap<>();
-        result.put("shortestPath", reconstructPath(cameFrom, start, goal));
+        result.put("shortestPath", bestPath);
         result.put("allVisited", allVisited);
         return result;
     }
@@ -74,18 +91,16 @@ public class GreedyBestFirstSearch {
             Collections.reverse(path);
             return path;
         } else {
-            return null; // Aucun chemin trouvé
+            return null;
         }
     }
 
     private void updateUI(Case c) {
         SwingUtilities.invokeLater(() -> {
             vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
-            try {
-                Thread.sleep(100); // Délai de 100ms pour ralentir l'affichage
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            Timer timer = new Timer(100, e -> {});
+            timer.setRepeats(false);
+            timer.start();
         });
     }
 }

@@ -37,24 +37,28 @@ public class Labyrinthe extends Observable {
     }
 
     public void setCaseStatut(int x, int y, Case.Statut statut) {
+        Case targetCase = grille[x][y];
         if (statut == Case.Statut.DEPART) {
-            if (depart != null) {
-                depart.setStatut(Case.Statut.VIDE);
-                setChanged();
-                notifyObservers(depart);
-            }
-            depart = grille[x][y];
+            updateSpecialCase(depart, targetCase, statut);
+            depart = targetCase;
         } else if (statut == Case.Statut.ARRIVEE) {
-            if (arrivee != null) {
-                arrivee.setStatut(Case.Statut.VIDE);
-                setChanged();
-                notifyObservers(arrivee);
-            }
-            arrivee = grille[x][y];
+            updateSpecialCase(arrivee, targetCase, statut);
+            arrivee = targetCase;
+        } else {
+            targetCase.setStatut(statut);
+            setChanged();
+            notifyObservers(targetCase);
         }
+    }
 
-        grille[x][y].setStatut(statut);
+    private void updateSpecialCase(Case oldCase, Case newCase, Case.Statut newStatut) {
+        if (oldCase != null) {
+            oldCase.setStatut(Case.Statut.VIDE);
+            setChanged();
+            notifyObservers(oldCase);
+        }
+        newCase.setStatut(newStatut);
         setChanged();
-        notifyObservers(grille[x][y]);
+        notifyObservers(newCase);
     }
 }

@@ -4,7 +4,7 @@ import models.Case;
 import models.Labyrinthe;
 import vues.VueGrille;
 
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import java.awt.Color;
 import java.util.*;
 
@@ -16,12 +16,14 @@ public class AStar {
     }
 
     public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
+        if (start == null || goal == null) {
+            throw new IllegalArgumentException("Les cases de départ et d'arrivée ne peuvent pas être nulles");
+        }
+
         Map<Case, Integer> costSoFar = new HashMap<>();
-        PriorityQueue<Case> frontier = new PriorityQueue<>(
-                Comparator.comparingInt(c -> costSoFar.getOrDefault(c, Integer.MAX_VALUE) + ManhattanHeuristic.calculate(c, goal))
-        );
+        PriorityQueue<Case> frontier = new PriorityQueue<>(Comparator.comparingInt(c -> costSoFar.get(c) + ManhattanHeuristic.calculate(c, goal)));
         Map<Case, Case> cameFrom = new HashMap<>();
-        Set<Case> allVisited = new HashSet<>();
+        List<Case> allVisited = new ArrayList<>();
 
         frontier.add(start);
         cameFrom.put(start, null);
@@ -30,34 +32,39 @@ public class AStar {
         while (!frontier.isEmpty()) {
             Case current = frontier.poll();
             allVisited.add(current);
+            updateUI(current, false);
 
             if (current.equals(goal)) {
                 break;
             }
 
-            for (Case next : getNeighbors(current, labyrinthe)) {
+            List<Case> neighbors = getNeighbors(current, labyrinthe);
+            for (Case next : neighbors) {
                 int newCost = costSoFar.get(current) + 1;
                 if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
                     costSoFar.put(next, newCost);
-                    int priority = newCost + ManhattanHeuristic.calculate(next, goal);
                     frontier.add(next);
                     cameFrom.put(next, current);
                 }
             }
+        }
 
-            updateUI(current);
+        List<Case> shortestPath = reconstructPath(cameFrom, start, goal);
+        if (shortestPath != null) {
+            for (Case c : shortestPath) {
+                updateUI(c, true);
+            }
         }
 
         Map<String, List<Case>> result = new HashMap<>();
-        result.put("shortestPath", reconstructPath(cameFrom, start, goal));
-        result.put("allVisited", new ArrayList<>(allVisited));
+        result.put("shortestPath", shortestPath);
+        result.put("allVisited", allVisited);
         return result;
     }
 
     private List<Case> getNeighbors(Case current, Labyrinthe labyrinthe) {
         List<Case> neighbors = new ArrayList<>();
-        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; // droite, gauche, bas, haut
-
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         for (int[] dir : directions) {
             int newX = current.getX() + dir[0];
             int newY = current.getY() + dir[1];
@@ -83,18 +90,14 @@ public class AStar {
             Collections.reverse(path);
             return path;
         } else {
-            return null; // Aucun chemin trouvé
+            return null;
         }
     }
 
-    private void updateUI(Case c) {
+    private void updateUI(Case c, boolean isShortestPath) {
         SwingUtilities.invokeLater(() -> {
-            try {
-                vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
-                Thread.sleep(50); // Réduit le délai pour une exécution plus rapide
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            Color color = isShortestPath ? Color.CYAN : Color.YELLOW;
+            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), color);
         });
     }
 }

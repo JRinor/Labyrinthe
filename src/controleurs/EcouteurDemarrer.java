@@ -67,20 +67,24 @@ public class EcouteurDemarrer implements ActionListener {
             List<Case> shortestPath = result.get("shortestPath");
 
             if (shortestPath != null) {
-                for (Case c : allVisited) {
-                    if (!shortestPath.contains(c)) {
-                        vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
-                    }
-                }
-                for (Case c : shortestPath) {
-                    vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.CYAN);
-                }
+                updateUI(allVisited, shortestPath);
                 System.out.println("Chemin trouvé de longueur : " + shortestPath.size());
             } else {
                 System.out.println("Aucun chemin trouvé");
             }
         } else {
             System.out.println("Erreur lors de l'exécution de l'algorithme");
+        }
+    }
+
+    private void updateUI(List<Case> allVisited, List<Case> shortestPath) {
+        for (Case c : allVisited) {
+            if (!shortestPath.contains(c)) {
+                vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
+            }
+        }
+        for (Case c : shortestPath) {
+            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.CYAN);
         }
     }
 }

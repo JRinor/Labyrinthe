@@ -7,5 +7,6 @@ public class EcouteurQuitter implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         System.out.println("Action sur le bouton Quitter");
+        System.exit(0); // Exit the application
     }
 }

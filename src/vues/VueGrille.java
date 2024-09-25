@@ -24,9 +24,7 @@ public class VueGrille extends JPanel implements Observer {
                 buttons[i][j] = button;
                 final int x = i;
                 final int y = j;
-                button.addActionListener(e -> {
-                    labyrinthe.setCaseStatut(x, y, currentStatut);
-                });
+                button.addActionListener(e -> labyrinthe.setCaseStatut(x, y, currentStatut));
                 this.add(button);
             }
         }
@@ -42,25 +40,28 @@ public class VueGrille extends JPanel implements Observer {
             Case updatedCase = (Case) arg;
             int x = updatedCase.getX();
             int y = updatedCase.getY();
-            updateButtonColor(buttons[x][y], updatedCase.getStatut());
+            SwingUtilities.invokeLater(() -> updateButtonColor(buttons[x][y], updatedCase.getStatut()));
         }
     }
 
     private void updateButtonColor(JButton button, Case.Statut statut) {
+        Color color;
         switch (statut) {
             case MUR:
-                button.setBackground(Color.BLACK);
+                color = Color.BLACK;
                 break;
             case DEPART:
-                button.setBackground(Color.GREEN);
+                color = Color.GREEN;
                 break;
             case ARRIVEE:
-                button.setBackground(Color.RED);
+                color = Color.RED;
                 break;
             case VIDE:
-                button.setBackground(Color.WHITE);
+            default:
+                color = Color.WHITE;
                 break;
         }
+        button.setBackground(color);
     }
 
     public void updateButtonColor(JButton button, Color color) {
@@ -74,9 +75,8 @@ public class VueGrille extends JPanel implements Observer {
     }
 
     public void resetPathColors() {
-        for (int i = 0; i < buttons.length; i++) {
-            for (int j = 0; j < buttons[i].length; j++) {
-                JButton button = buttons[i][j];
+        for (JButton[] row : buttons) {
+            for (JButton button : row) {
                 if (button.getBackground() == Color.YELLOW || button.getBackground() == Color.CYAN) {
                     button.setBackground(Color.WHITE);
                 }

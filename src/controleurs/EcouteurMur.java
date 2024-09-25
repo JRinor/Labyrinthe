@@ -12,6 +12,9 @@ public class EcouteurMur implements ActionListener {
     private int y;
 
     public EcouteurMur(Labyrinthe labyrinthe) {
+        if (labyrinthe == null) {
+            throw new IllegalArgumentException("Labyrinthe cannot be null");
+        }
         this.labyrinthe = labyrinthe;
     }
 

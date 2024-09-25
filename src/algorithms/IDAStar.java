@@ -5,6 +5,7 @@ import models.Labyrinthe;
 import vues.VueGrille;
 
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import java.awt.Color;
 import java.util.*;
 
@@ -23,11 +24,12 @@ public class IDAStar {
         int threshold = ManhattanHeuristic.calculate(start, goal);
 
         while (true) {
-            int temp = search(start, 0, threshold, goal, labyrinthe, new ArrayList<>());
+            int temp = search(start, 0, threshold, goal, labyrinthe, new HashSet<>());
             if (temp == -1) {
                 Map<String, List<Case>> result = new HashMap<>();
                 result.put("shortestPath", bestPath);
                 result.put("allVisited", allVisited);
+                System.out.println("Nombre de cases explorées : " + allVisited.size());
                 return result;
             }
             if (temp == Integer.MAX_VALUE) {
@@ -37,7 +39,7 @@ public class IDAStar {
         }
     }
 
-    private int search(Case current, int g, int threshold, Case goal, Labyrinthe labyrinthe, List<Case> path) {
+    private int search(Case current, int g, int threshold, Case goal, Labyrinthe labyrinthe, Set<Case> path) {
         path.add(current);
         updateUI(current);
 
@@ -64,7 +66,7 @@ public class IDAStar {
             }
         }
 
-        path.remove(path.size() - 1);
+        path.remove(current);
         return min;
     }
 
@@ -89,11 +91,9 @@ public class IDAStar {
             allVisited.add(c);
             SwingUtilities.invokeLater(() -> {
                 vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
-                try {
-                    Thread.sleep(100); // Délai de 100ms pour ralentir l'affichage
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                Timer timer = new Timer(100, e -> {});
+                timer.setRepeats(false);
+                timer.start();
             });
         }
     }

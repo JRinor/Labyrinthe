@@ -56,17 +56,17 @@ public class VueBouttons extends JPanel implements Observer {
     }
 
     private void updateButtonColors(Case.Statut selectedStatut) {
-        buttonMur.setBackground(selectedStatut == Case.Statut.MUR ? Color.BLACK : null);
-        buttonMur.setForeground(selectedStatut == Case.Statut.MUR ? Color.WHITE : null);
+        buttonMur.setBackground(selectedStatut == Case.Statut.MUR ? Color.BLACK : Color.LIGHT_GRAY);
+        buttonMur.setForeground(selectedStatut == Case.Statut.MUR ? Color.WHITE : Color.BLACK);
 
-        buttonDepart.setBackground(selectedStatut == Case.Statut.DEPART ? Color.GREEN : null);
-        buttonDepart.setForeground(selectedStatut == Case.Statut.DEPART ? Color.WHITE : null);
+        buttonDepart.setBackground(selectedStatut == Case.Statut.DEPART ? Color.GREEN : Color.LIGHT_GRAY);
+        buttonDepart.setForeground(selectedStatut == Case.Statut.DEPART ? Color.WHITE : Color.BLACK);
 
-        buttonArrivee.setBackground(selectedStatut == Case.Statut.ARRIVEE ? Color.RED : null);
-        buttonArrivee.setForeground(selectedStatut == Case.Statut.ARRIVEE ? Color.WHITE : null);
+        buttonArrivee.setBackground(selectedStatut == Case.Statut.ARRIVEE ? Color.RED : Color.LIGHT_GRAY);
+        buttonArrivee.setForeground(selectedStatut == Case.Statut.ARRIVEE ? Color.WHITE : Color.BLACK);
 
-        buttonVide.setBackground(selectedStatut == Case.Statut.VIDE ? Color.WHITE : null);
-        buttonVide.setForeground(selectedStatut == Case.Statut.VIDE ? Color.BLACK : null);
+        buttonVide.setBackground(selectedStatut == Case.Statut.VIDE ? Color.WHITE : Color.LIGHT_GRAY);
+        buttonVide.setForeground(selectedStatut == Case.Statut.VIDE ? Color.BLACK : Color.BLACK);
     }
 
     @Override

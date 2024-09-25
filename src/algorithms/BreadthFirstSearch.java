@@ -7,6 +7,7 @@ import vues.VueGrille;
 import java.awt.Color;
 import java.util.*;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 public class BreadthFirstSearch {
     private VueGrille vueGrille;
@@ -83,12 +84,10 @@ public class BreadthFirstSearch {
 
     private void updateUI(Case c) {
         SwingUtilities.invokeLater(() -> {
-            try {
-                vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
-                Thread.sleep(50); // Réduit le délai pour une exécution plus rapide
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
+            Timer timer = new Timer(100, e -> {});
+            timer.setRepeats(false);
+            timer.start();
         });
     }
 }

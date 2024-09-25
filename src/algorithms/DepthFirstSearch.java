@@ -4,55 +4,61 @@ import models.Case;
 import models.Labyrinthe;
 import vues.VueGrille;
 
+import javax.swing.*;
 import java.awt.Color;
 import java.util.*;
-import javax.swing.SwingUtilities;
 
 public class DepthFirstSearch {
     private VueGrille vueGrille;
-    private Set<Case> allVisited;
-    private Map<Case, Case> cameFrom;
-    private boolean found;
+    private List<Case> bestPath;
+    private List<Case> allVisited;
 
     public DepthFirstSearch(VueGrille vueGrille) {
         this.vueGrille = vueGrille;
     }
 
     public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
-        allVisited = new HashSet<>();
-        cameFrom = new HashMap<>();
-        found = false;
-        dfs(start, goal, labyrinthe);
+        bestPath = null;
+        allVisited = new ArrayList<>();
+        Stack<Case> frontier = new Stack<>();
+        Map<Case, Case> cameFrom = new HashMap<>();
+        frontier.push(start);
+        cameFrom.put(start, null);
 
-        Map<String, List<Case>> result = new HashMap<>();
-        result.put("shortestPath", found ? reconstructPath(cameFrom, start, goal) : null);
-        result.put("allVisited", new ArrayList<>(allVisited));
-        return result;
-    }
+        while (!frontier.isEmpty()) {
+            Case current = frontier.pop();
+            allVisited.add(current);
+            updateUI(current, false);
 
-    private void dfs(Case current, Case goal, Labyrinthe labyrinthe) {
-        allVisited.add(current);
-        updateUI(current);
+            if (current.equals(goal)) {
+                bestPath = reconstructPath(cameFrom, start, goal);
+                break;
+            }
 
-        if (current.equals(goal)) {
-            found = true;
-            return;
-        }
-
-        List<Case> neighbors = getNeighbors(current, labyrinthe);
-        for (Case next : neighbors) {
-            if (!allVisited.contains(next) && !found) {
-                cameFrom.put(next, current);
-                dfs(next, goal, labyrinthe);
-                if (found) return;
+            List<Case> neighbors = getNeighbors(current, labyrinthe);
+            for (Case next : neighbors) {
+                if (!cameFrom.containsKey(next)) {
+                    frontier.push(next);
+                    cameFrom.put(next, current);
+                }
             }
         }
+
+        if (bestPath != null) {
+            for (Case c : bestPath) {
+                updateUI(c, true);
+            }
+        }
+
+        Map<String, List<Case>> result = new HashMap<>();
+        result.put("shortestPath", bestPath);
+        result.put("allVisited", allVisited);
+        return result;
     }
 
     private List<Case> getNeighbors(Case current, Labyrinthe labyrinthe) {
         List<Case> neighbors = new ArrayList<>();
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; // droite, gauche, bas, haut
-
         for (int[] dir : directions) {
             int newX = current.getX() + dir[0];
             int newY = current.getY() + dir[1];
@@ -78,18 +84,14 @@ public class DepthFirstSearch {
             Collections.reverse(path);
             return path;
         } else {
-            return null; // Aucun chemin trouvé
+            return null;
         }
     }
 
-    private void updateUI(Case c) {
+    private void updateUI(Case c, boolean isShortestPath) {
         SwingUtilities.invokeLater(() -> {
-            try {
-                vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
-                Thread.sleep(50); // Réduit le délai pour une exécution plus rapide
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            Color color = isShortestPath ? Color.CYAN : Color.YELLOW;
+            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), color);
         });
     }
 }

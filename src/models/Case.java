@@ -2,6 +2,7 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Case {
     public enum Statut {
@@ -56,6 +57,6 @@ public class Case {
         if (y - 1 >= 0) neighbors.add(labyrinthe.getCase(x, y - 1));
         return neighbors.stream()
                 .filter(c -> c.getStatut() != Statut.MUR)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 }
