@@ -38,6 +38,5 @@ public class VueAffichage extends JPanel implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        // Cette méthode peut rester vide si vous n'avez plus besoin de l'update pour les Cases
     }
 }

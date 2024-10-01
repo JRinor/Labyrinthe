@@ -98,7 +98,7 @@ public class BreadthFirstSearch {
             Collections.reverse(path);
             return path;
         } else {
-            return null; // Aucun chemin trouvé
+            return null;
         }
     }
 

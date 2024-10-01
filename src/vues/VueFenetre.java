@@ -39,7 +39,6 @@ public class VueFenetre {
             VueBouttons vueBouttons = new VueBouttons(labyrinthe, vueGrille);
             labyrinthe.addObserver(vueBouttons);
 
-            // Créer et configurer EcouteurDemarrer
             JComboBox<String> comboBox = vueBouttons.getComboBox();
             EcouteurDemarrer ecouteurDemarrer = new EcouteurDemarrer(labyrinthe, vueGrille, vueAffichage, comboBox);
             vueBouttons.setEcouteurDemarrer(ecouteurDemarrer);

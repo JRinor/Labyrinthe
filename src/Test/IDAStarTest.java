@@ -20,7 +20,6 @@ class IDAStarTest {
 
     @BeforeEach
     void setUp() {
-        // Assurez-vous que le labyrinthe est correctement initialisé
         this.labyrinthe = new Labyrinthe(5, 5);
         this.vueGrille = new VueGrille(5, 5, this.labyrinthe);
         this.idaStar = new IDAStar(this.vueGrille);

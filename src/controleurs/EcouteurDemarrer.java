@@ -42,7 +42,7 @@ public class EcouteurDemarrer implements ActionListener {
         System.out.println("Départ: (" + start.getX() + ", " + start.getY() + ")");
         System.out.println("Arrivée: (" + goal.getX() + ", " + goal.getY() + ")");
 
-        vueGrille.resetPathColors(); // Reset path colors before running the new algorithm
+        vueGrille.resetPathColors();
 
         switch (selectedAlgo) {
             case "AStar":
