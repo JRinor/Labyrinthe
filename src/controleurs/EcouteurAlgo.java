@@ -28,7 +28,7 @@ public class EcouteurAlgo implements ActionListener {
         String selectedAlgo = (String) comboBox.getSelectedItem();
         Case start = labyrinthe.getDepart();
         Case goal = labyrinthe.getArrivee();
-        Map<String, List<Case>> result = null;
+        Map<String, Object> result = null;
 
         if (start == null || goal == null) {
             System.out.println("Le point de départ ou d'arrivée n'est pas défini.");
@@ -59,8 +59,9 @@ public class EcouteurAlgo implements ActionListener {
         }
 
         if (result != null) {
-            List<Case> allVisited = result.get("allVisited");
-            List<Case> shortestPath = result.get("shortestPath");
+            List<Case> allVisited = (List<Case>) result.get("allVisited");
+            List<Case> shortestPath = (List<Case>) result.get("shortestPath");
+            AlgorithmStats stats = (AlgorithmStats) result.get("stats");
 
             if (shortestPath != null) {
                 updateUI(allVisited, shortestPath);
@@ -68,6 +69,8 @@ public class EcouteurAlgo implements ActionListener {
             } else {
                 System.out.println("Aucun chemin trouvé");
             }
+
+            System.out.println(stats.toString());
         } else {
             System.out.println("Erreur lors de l'exécution de l'algorithme");
         }

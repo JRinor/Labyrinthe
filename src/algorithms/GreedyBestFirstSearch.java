@@ -5,45 +5,47 @@ import models.Labyrinthe;
 import vues.VueGrille;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import java.awt.Color;
 import java.util.*;
 
 public class GreedyBestFirstSearch {
-    private VueGrille vueGrille;
-    private List<Case> bestPath;
-    private List<Case> allVisited;
+    private final VueGrille vueGrille;
+    private final AlgorithmStats stats;
 
     public GreedyBestFirstSearch(VueGrille vueGrille) {
         this.vueGrille = vueGrille;
+        this.stats = new AlgorithmStats();
     }
 
-    public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
+    public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
         if (start == null || goal == null) {
             throw new IllegalArgumentException("Start and goal cannot be null");
         }
 
-        bestPath = null;
-        allVisited = new ArrayList<>();
-        PriorityQueue<Case> frontier = new PriorityQueue<>(Comparator.comparingInt(c -> ManhattanHeuristic.calculate(c, goal)));
+        stats.reset();
+        long startTime = System.currentTimeMillis();
+
+        List<Case> bestPath = null;
+        List<Case> allVisited = new ArrayList<>();
+        PriorityQueue<Case> frontier = new PriorityQueue<>(
+                Comparator.comparingInt(c -> ManhattanHeuristic.calculate(c, goal))
+        );
         Map<Case, Case> cameFrom = new HashMap<>();
         frontier.add(start);
         cameFrom.put(start, null);
 
-        long startTime = System.currentTimeMillis();
-
         while (!frontier.isEmpty()) {
             Case current = frontier.poll();
             allVisited.add(current);
-            updateUI(current);
+            updateUI(current, false);
+            stats.incrementStatesGenerated();
 
             if (current.equals(goal)) {
                 bestPath = reconstructPath(cameFrom, start, goal);
                 break;
             }
 
-            List<Case> neighbors = getNeighbors(current, labyrinthe);
-            for (Case next : neighbors) {
+            for (Case next : getNeighbors(current, labyrinthe)) {
                 if (!cameFrom.containsKey(next)) {
                     frontier.add(next);
                     cameFrom.put(next, current);
@@ -52,15 +54,19 @@ public class GreedyBestFirstSearch {
         }
 
         long endTime = System.currentTimeMillis();
-        long executionTime = endTime - startTime;
+        stats.setExecutionTime(endTime - startTime);
+        stats.setSuccess(bestPath != null);
+        stats.setPathLength(bestPath != null ? bestPath.size() - 1 : 0);
 
-        System.out.println("Temps d'exécution : " + executionTime + " ms");
-        System.out.println("Nombre de cases explorées : " + allVisited.size());
+        if (bestPath != null) {
+            bestPath.forEach(c -> updateUI(c, true));
+        }
 
-        Map<String, List<Case>> result = new HashMap<>();
-        result.put("shortestPath", bestPath);
-        result.put("allVisited", allVisited);
-        return result;
+        return Map.of(
+                "shortestPath", bestPath,
+                "allVisited", allVisited,
+                "stats", stats
+        );
     }
 
     private List<Case> getNeighbors(Case current, Labyrinthe labyrinthe) {
@@ -95,12 +101,10 @@ public class GreedyBestFirstSearch {
         }
     }
 
-    private void updateUI(Case c) {
+    private void updateUI(Case c, boolean isShortestPath) {
         SwingUtilities.invokeLater(() -> {
-            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
-            Timer timer = new Timer(100, e -> {});
-            timer.setRepeats(false);
-            timer.start();
+            Color color = isShortestPath ? Color.CYAN : Color.YELLOW;
+            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), color);
         });
     }
 }

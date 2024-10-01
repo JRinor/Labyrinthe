@@ -9,17 +9,24 @@ import java.awt.Color;
 import java.util.*;
 
 public class DepthFirstSearch {
-    private VueGrille vueGrille;
-    private List<Case> bestPath;
-    private List<Case> allVisited;
+    private final VueGrille vueGrille;
+    private final AlgorithmStats stats;
 
     public DepthFirstSearch(VueGrille vueGrille) {
         this.vueGrille = vueGrille;
+        this.stats = new AlgorithmStats();
     }
 
-    public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
-        bestPath = null;
-        allVisited = new ArrayList<>();
+    public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
+        if (start == null || goal == null) {
+            throw new IllegalArgumentException("Les cases de départ et d'arrivée ne peuvent pas être nulles");
+        }
+
+        stats.reset();
+        long startTime = System.currentTimeMillis();
+
+        List<Case> bestPath = null;
+        List<Case> allVisited = new ArrayList<>();
         Stack<Case> frontier = new Stack<>();
         Map<Case, Case> cameFrom = new HashMap<>();
         frontier.push(start);
@@ -29,14 +36,14 @@ public class DepthFirstSearch {
             Case current = frontier.pop();
             allVisited.add(current);
             updateUI(current, false);
+            stats.incrementStatesGenerated();
 
             if (current.equals(goal)) {
                 bestPath = reconstructPath(cameFrom, start, goal);
                 break;
             }
 
-            List<Case> neighbors = getNeighbors(current, labyrinthe);
-            for (Case next : neighbors) {
+            for (Case next : getNeighbors(current, labyrinthe)) {
                 if (!cameFrom.containsKey(next)) {
                     frontier.push(next);
                     cameFrom.put(next, current);
@@ -44,16 +51,20 @@ public class DepthFirstSearch {
             }
         }
 
+        long endTime = System.currentTimeMillis();
+        stats.setExecutionTime(endTime - startTime);
+        stats.setSuccess(bestPath != null);
+        stats.setPathLength(bestPath != null ? bestPath.size() - 1 : 0);
+
         if (bestPath != null) {
-            for (Case c : bestPath) {
-                updateUI(c, true);
-            }
+            bestPath.forEach(c -> updateUI(c, true));
         }
 
-        Map<String, List<Case>> result = new HashMap<>();
-        result.put("shortestPath", bestPath);
-        result.put("allVisited", allVisited);
-        return result;
+        return Map.of(
+                "shortestPath", bestPath,
+                "allVisited", allVisited,
+                "stats", stats
+        );
     }
 
     private List<Case> getNeighbors(Case current, Labyrinthe labyrinthe) {

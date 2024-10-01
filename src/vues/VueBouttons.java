@@ -1,3 +1,4 @@
+// VueBouttons.java
 package vues;
 
 import controleurs.*;
@@ -17,6 +18,7 @@ public class VueBouttons extends JPanel implements Observer {
     private JButton buttonArrivee;
     private JButton buttonVide;
     private JComboBox<String> comboBox;
+    private JButton buttonDemarrer;
 
     public VueBouttons(Labyrinthe labyrinthe, VueGrille vueGrille) {
         this.labyrinthe = labyrinthe;
@@ -30,10 +32,9 @@ public class VueBouttons extends JPanel implements Observer {
         buttonVide.setBackground(Color.WHITE);
 
         comboBox = new JComboBox<>(new String[]{"AStar", "BreadthFirstSearch", "DepthFirstSearch", "Dijkstra", "GreedyBestFirstSearch", "IDAStar"});
-        JButton buttonDemarrer = new JButton("Demarrer");
+        buttonDemarrer = new JButton("Demarrer");
         JButton buttonQuitter = new JButton("Quitter");
 
-        buttonDemarrer.addActionListener(new EcouteurDemarrer(labyrinthe, vueGrille, comboBox));
         buttonQuitter.addActionListener(new EcouteurQuitter());
 
         this.add(label);
@@ -75,5 +76,13 @@ public class VueBouttons extends JPanel implements Observer {
             Case updatedCase = (Case) arg;
             System.out.println("VueBouttons mise à jour avec: " + updatedCase.getStatut());
         }
+    }
+
+    public JComboBox<String> getComboBox() {
+        return comboBox;
+    }
+
+    public void setEcouteurDemarrer(EcouteurDemarrer ecouteurDemarrer) {
+        buttonDemarrer.addActionListener(ecouteurDemarrer);
     }
 }

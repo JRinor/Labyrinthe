@@ -3,6 +3,7 @@ package controleurs;
 import models.Case;
 import models.Labyrinthe;
 import vues.VueGrille;
+import vues.VueAffichage;
 import algorithms.*;
 
 import javax.swing.JComboBox;
@@ -15,11 +16,13 @@ import java.util.Map;
 public class EcouteurDemarrer implements ActionListener {
     private Labyrinthe labyrinthe;
     private VueGrille vueGrille;
+    private VueAffichage vueAffichage;
     private JComboBox<String> comboBox;
 
-    public EcouteurDemarrer(Labyrinthe labyrinthe, VueGrille vueGrille, JComboBox<String> comboBox) {
+    public EcouteurDemarrer(Labyrinthe labyrinthe, VueGrille vueGrille, VueAffichage vueAffichage, JComboBox<String> comboBox) {
         this.labyrinthe = labyrinthe;
         this.vueGrille = vueGrille;
+        this.vueAffichage = vueAffichage;
         this.comboBox = comboBox;
     }
 
@@ -29,7 +32,7 @@ public class EcouteurDemarrer implements ActionListener {
         String selectedAlgo = (String) comboBox.getSelectedItem();
         Case start = labyrinthe.getDepart();
         Case goal = labyrinthe.getArrivee();
-        Map<String, List<Case>> result = null;
+        Map<String, Object> result = null;
 
         if (start == null || goal == null) {
             System.out.println("Le point de départ ou d'arrivée n'est pas défini.");
@@ -63,14 +66,20 @@ public class EcouteurDemarrer implements ActionListener {
         }
 
         if (result != null) {
-            List<Case> allVisited = result.get("allVisited");
-            List<Case> shortestPath = result.get("shortestPath");
+            List<Case> allVisited = (List<Case>) result.get("allVisited");
+            List<Case> shortestPath = (List<Case>) result.get("shortestPath");
+            AlgorithmStats stats = (AlgorithmStats) result.get("stats");
 
             if (shortestPath != null) {
                 updateUI(allVisited, shortestPath);
                 System.out.println("Chemin trouvé de longueur : " + shortestPath.size());
             } else {
                 System.out.println("Aucun chemin trouvé");
+            }
+
+            if (stats != null) {
+                vueAffichage.updateStats(stats);
+                System.out.println(stats.toString());
             }
         } else {
             System.out.println("Erreur lors de l'exécution de l'algorithme");

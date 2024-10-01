@@ -7,16 +7,24 @@ import vues.VueGrille;
 import java.awt.Color;
 import java.util.*;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 public class BreadthFirstSearch {
-    private VueGrille vueGrille;
+    private final VueGrille vueGrille;
+    private final AlgorithmStats stats;
 
     public BreadthFirstSearch(VueGrille vueGrille) {
         this.vueGrille = vueGrille;
+        this.stats = new AlgorithmStats();
     }
 
-    public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
+    public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
+        if (start == null || goal == null) {
+            throw new IllegalArgumentException("Les cases de départ et d'arrivée ne peuvent pas être nulles");
+        }
+
+        stats.reset();
+        long startTime = System.currentTimeMillis();
+
         Queue<Case> frontier = new LinkedList<>();
         Map<Case, Case> cameFrom = new HashMap<>();
         Set<Case> allVisited = new HashSet<>();
@@ -27,26 +35,38 @@ public class BreadthFirstSearch {
 
         while (!frontier.isEmpty()) {
             Case current = frontier.poll();
+            stats.incrementStatesGenerated();
+            updateUI(current, false);
 
             if (current.equals(goal)) {
                 break;
             }
 
-            List<Case> neighbors = getNeighbors(current, labyrinthe);
-            for (Case next : neighbors) {
+            for (Case next : getNeighbors(current, labyrinthe)) {
                 if (!allVisited.contains(next)) {
                     frontier.add(next);
                     cameFrom.put(next, current);
                     allVisited.add(next);
-                    updateUI(next);
                 }
             }
         }
 
-        Map<String, List<Case>> result = new HashMap<>();
-        result.put("shortestPath", reconstructPath(cameFrom, start, goal));
-        result.put("allVisited", new ArrayList<>(allVisited));
-        return result;
+        List<Case> shortestPath = reconstructPath(cameFrom, start, goal);
+        long endTime = System.currentTimeMillis();
+
+        stats.setExecutionTime(endTime - startTime);
+        stats.setSuccess(shortestPath != null);
+        stats.setPathLength(shortestPath != null ? shortestPath.size() - 1 : 0);
+
+        if (shortestPath != null) {
+            shortestPath.forEach(c -> updateUI(c, true));
+        }
+
+        return Map.of(
+                "shortestPath", shortestPath,
+                "allVisited", new ArrayList<>(allVisited),
+                "stats", stats
+        );
     }
 
     private List<Case> getNeighbors(Case current, Labyrinthe labyrinthe) {
@@ -82,12 +102,10 @@ public class BreadthFirstSearch {
         }
     }
 
-    private void updateUI(Case c) {
+    private void updateUI(Case c, boolean isShortestPath) {
         SwingUtilities.invokeLater(() -> {
-            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), Color.YELLOW);
-            Timer timer = new Timer(100, e -> {});
-            timer.setRepeats(false);
-            timer.start();
+            Color color = isShortestPath ? Color.CYAN : Color.YELLOW;
+            vueGrille.updateButtonColor(vueGrille.getButtonForCase(c), color);
         });
     }
 }

@@ -1,6 +1,8 @@
+// VueFenetre.java
 package vues;
 
 import models.Labyrinthe;
+import controleurs.EcouteurDemarrer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,15 +30,21 @@ public class VueFenetre {
             labyrinthe.addObserver(vueGrille);
             frame.add(vueGrille, BorderLayout.CENTER);
 
-            // VueBouttons en haut
-            VueBouttons vueBouttons = new VueBouttons(labyrinthe, vueGrille);
-            labyrinthe.addObserver(vueBouttons);
-            frame.add(vueBouttons, BorderLayout.NORTH);
-
             // VueAffichage en bas
             VueAffichage vueAffichage = new VueAffichage();
             labyrinthe.addObserver(vueAffichage);
             frame.add(vueAffichage, BorderLayout.SOUTH);
+
+            // VueBouttons en haut
+            VueBouttons vueBouttons = new VueBouttons(labyrinthe, vueGrille);
+            labyrinthe.addObserver(vueBouttons);
+
+            // Créer et configurer EcouteurDemarrer
+            JComboBox<String> comboBox = vueBouttons.getComboBox();
+            EcouteurDemarrer ecouteurDemarrer = new EcouteurDemarrer(labyrinthe, vueGrille, vueAffichage, comboBox);
+            vueBouttons.setEcouteurDemarrer(ecouteurDemarrer);
+
+            frame.add(vueBouttons, BorderLayout.NORTH);
 
             frame.setVisible(true);
         });

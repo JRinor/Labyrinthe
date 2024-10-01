@@ -10,15 +10,19 @@ import java.util.*;
 
 public class AStar {
     private VueGrille vueGrille;
+    private AlgorithmStats stats;
 
     public AStar(VueGrille vueGrille) {
         this.vueGrille = vueGrille;
+        this.stats = new AlgorithmStats();
     }
 
-    public Map<String, List<Case>> search(Labyrinthe labyrinthe, Case start, Case goal) {
+    public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
         if (start == null || goal == null) {
             throw new IllegalArgumentException("Les cases de départ et d'arrivée ne peuvent pas être nulles");
         }
+
+        long startTime = System.currentTimeMillis();
 
         Map<Case, Integer> costSoFar = new HashMap<>();
         PriorityQueue<Case> frontier = new PriorityQueue<>(Comparator.comparingInt(c -> costSoFar.get(c) + ManhattanHeuristic.calculate(c, goal)));
@@ -32,6 +36,7 @@ public class AStar {
         while (!frontier.isEmpty()) {
             Case current = frontier.poll();
             allVisited.add(current);
+            stats.incrementStatesGenerated();
             updateUI(current, false);
 
             if (current.equals(goal)) {
@@ -50,15 +55,22 @@ public class AStar {
         }
 
         List<Case> shortestPath = reconstructPath(cameFrom, start, goal);
+        long endTime = System.currentTimeMillis();
+
+        stats.setExecutionTime(endTime - startTime);
+        stats.setSuccess(shortestPath != null);
+        stats.setPathLength(shortestPath != null ? shortestPath.size() - 1 : 0);
+
         if (shortestPath != null) {
             for (Case c : shortestPath) {
                 updateUI(c, true);
             }
         }
 
-        Map<String, List<Case>> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         result.put("shortestPath", shortestPath);
         result.put("allVisited", allVisited);
+        result.put("stats", stats);
         return result;
     }
 
