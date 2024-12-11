@@ -1,9 +1,31 @@
 # R5.A.04 - Qualité Algorithmique : Algo 3 (BUT 3)
 
-Januzi Rinor
+Januzi Rinor  
 BUT 3 Informatique
 
 ---
+
+## Table des matières
+
+1. [Introduction](#introduction)
+2. [Structure du projet](#structure-du-projet)
+   - [Architecture MVC](#architecture-mvc)
+   - [Structure des fichiers](#structure-des-fichiers)
+3. [Modèle](#modèle)
+4. [Vue](#vue)
+5. [Contrôleur](#contrôleur)
+6. [Algorithmes de recherche](#algorithmes-de-recherche)
+   - [A*](#a*)
+   - [Breadth-First Search (BFS)](#breadth-first-search-bfs)
+   - [Depth-First Search (DFS)](#depth-first-search-dfs)
+   - [Dijkstra](#dijkstra)
+   - [Greedy Best-First Search](#greedy-best-first-search)
+   - [IDA*](#ida*)
+7. [Tests](#tests)
+8. [Comparaison des algorithmes](#comparaison-des-algorithmes)
+9. [Fonctionnalités clés](#fonctionnalités-clés)
+10. [Installation et exécution](#installation-et-exécution)
+11. [Exemples d'utilisation](#exemples-dutilisation)
 
 ## Introduction
 
@@ -11,11 +33,13 @@ Ce projet implémente un système de résolution de labyrinthes avec une interfa
 
 ## Structure du projet
 
+### Architecture MVC
+
 Le projet suit une architecture Modèle-Vue-Contrôleur (MVC) :
 
 ![Architecture MVC](img/MVC.png)
 
-## Structure des fichiers
+### Structure des fichiers
 
 Voici la structure des fichiers du projet :
 
@@ -66,9 +90,9 @@ C:.
 │           VueGrille.java
 ```
 
-### Modèle
+## Modèle
 
-#### Classe `Labyrinthe`
+### Classe `Labyrinthe`
 
 Représente la structure du labyrinthe :
 
@@ -82,7 +106,7 @@ public class Labyrinthe extends Observable {
 }
 ```
 
-#### Classe `Case`
+### Classe `Case`
 
 Représente une cellule du labyrinthe :
 
@@ -97,9 +121,9 @@ public class Case {
 }
 ```
 
-### Vue
+## Vue
 
-#### `VueFenetre`
+### `VueFenetre`
 
 Crée et configure la fenêtre principale :
 
@@ -114,7 +138,7 @@ public class VueFenetre {
 }
 ```
 
-#### `VueGrille`
+### `VueGrille`
 
 Affiche le labyrinthe sous forme de grille de boutons :
 
@@ -132,7 +156,7 @@ public class VueGrille extends JPanel implements Observer {
 }
 ```
 
-### Contrôleur
+## Contrôleur
 
 Plusieurs classes d'écouteurs gèrent les interactions, par exemple :
 
@@ -150,7 +174,7 @@ public class EcouteurDemarrer implements ActionListener {
 
 Le projet implémente plusieurs algorithmes, dont :
 
-### Fonctionnement interne de A*
+### A*
 
 ```java
 public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
@@ -204,12 +228,7 @@ public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) 
 }
 ```
 
-**Explications :**
-- A* utilise une `PriorityQueue` pour sélectionner la case à explorer en priorité, en fonction d'une estimation heuristique (par exemple, la distance de Manhattan).
-- Deux maps sont utilisées : `cameFrom` pour enregistrer le chemin parcouru et `costSoFar` pour suivre le coût accumulé pour atteindre chaque case.
-- La fonction heuristique joue un rôle clé pour guider l'exploration en combinant le coût actuel et une estimation du coût restant jusqu'à l'objectif.
-
-### Fonctionnement interne de Breadth-First Search (BFS)
+### Breadth-First Search (BFS)
 
 ```java
 public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
@@ -258,11 +277,7 @@ public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) 
 }
 ```
 
-BFS utilise une Queue pour explorer les cases niveau par niveau.  
-Une map `cameFrom` est utilisée pour enregistrer le chemin parcouru.  
-Un Set `allVisited` est utilisé pour suivre les cases déjà explorées.
-
-### Fonctionnement interne de Depth-First Search (DFS)
+### Depth-First Search (DFS)
 
 ```java
 public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
@@ -310,11 +325,7 @@ public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) 
 }
 ```
 
-DFS utilise une Stack pour explorer les cases en profondeur.  
-Une map `cameFrom` est utilisée pour enregistrer le chemin parcouru.  
-Une liste `allVisited` est utilisée pour suivre les cases déjà explorées.
-
-### Fonctionnement interne de Dijkstra
+### Dijkstra
 
 ```java
 public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
@@ -366,10 +377,7 @@ public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) 
 }
 ```
 
-Dijkstra utilise une `PriorityQueue` pour explorer les cases en fonction de leur coût accumulé.  
-Deux maps sont utilisées : `cameFrom` pour enregistrer le chemin parcouru et `costSoFar` pour suivre le coût accumulé pour atteindre chaque case.
-
-### Fonctionnement interne de Greedy Best-First Search
+### Greedy Best-First Search (GBFS)
 
 ```java
 public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
@@ -415,10 +423,7 @@ public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) 
 }
 ```
 
-Greedy Best-First Search utilise une `PriorityQueue` pour explorer les cases en fonction de l'estimation heuristique de la distance jusqu'à l'objectif.  
-Une map `cameFrom` est utilisée pour enregistrer le chemin parcouru.
-
-### Fonctionnement interne de IDA*
+### IDA*
 
 ```java
 public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
@@ -453,12 +458,6 @@ public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) 
 }
 ```
 
-IDA* utilise une approche itérative pour explorer les cases en profondeur, en ajustant dynamiquement le seuil de coût.  
-Une map `cameFrom` est utilisée pour enregistrer le chemin parcouru.  
-La fonction heuristique joue un rôle clé pour guider l'exploration en combinant le coût actuel et une estimation du coût restant jusqu'à l'objectif.
-
----
-
 ## Tests
 
 Des tests unitaires ont été écrits pour vérifier le bon fonctionnement des algorithmes et de l'interface utilisateur. Les tests peuvent être exécutés avec JUnit.
@@ -467,11 +466,10 @@ Des tests unitaires ont été écrits pour vérifier le bon fonctionnement des a
 
 Chaque algorithme de recherche a été testé pour s'assurer qu'il fonctionne correctement dans différents scénarios. Voici les détails des tests effectués :
 
-### Tests pour A*
+#### Tests pour A*
 
 ```java
 class AStarTest {
-
     private AStar aStar;
     private Labyrinthe labyrinthe;
     private VueGrille vueGrille;
@@ -511,16 +509,10 @@ class AStarTest {
 }
 ```
 
-**Explications :**
-- `testPathFound()`: Vérifie que l'algorithme trouve un chemin valide entre deux points distincts.
-- `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
-- `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
-
-### Tests pour Breadth-First Search (BFS)
+#### Tests pour Breadth-First Search (BFS)
 
 ```java
 class BreadthFirstSearchTest {
-
     private BreadthFirstSearch bfs;
     private Labyrinthe labyrinthe;
     private VueGrille vueGrille;
@@ -560,16 +552,10 @@ class BreadthFirstSearchTest {
 }
 ```
 
-**Explications :**
-- `testPathFound()`: Vérifie que l'algorithme trouve un chemin valide entre deux points distincts.
-- `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
-- `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
-
-### Tests pour Depth-First Search (DFS)
+#### Tests pour Depth-First Search (DFS)
 
 ```java
 class DepthFirstSearchTest {
-
     private DepthFirstSearch dfs;
     private Labyrinthe labyrinthe;
     private VueGrille vueGrille;
@@ -608,12 +594,6 @@ class DepthFirstSearchTest {
     }
 }
 ```
-
-**Explications :**
-- `testPathFound()`: Vérifie que l'algorithme trouve un chemin valide entre deux points distincts.
-- `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
-- `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
-
 ### Tests pour Dijkstra
 
 ```java
@@ -761,9 +741,6 @@ class IDAStarTest {
 - `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
 - `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
 
----
-
-
 ### Comparaison des algorithmes
 
 | **Algorithme**  | **Complexité** | **Cas d'utilisation**                        |
@@ -811,6 +788,4 @@ class IDAStarTest {
 
 ![Exemple d'utilisation avec A*](img/AStar.png)
 
-
 ![Exemple de sortie du terminal](img/Sortie.png)
-
