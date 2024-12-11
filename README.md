@@ -791,11 +791,11 @@ class IDAStarTest {
    ```bash
    git clone https://github.com/JRinor/Labyrinthe.git
    cd Labyrinthe
-   ```)à
+   ```
 
 2. Compilez et exécutez le projet :
    ```bash
-   javac -d bin src/**/*.java
+   javac -d bin src/**g/*.java
    java -cp bin Main
    ```
 
