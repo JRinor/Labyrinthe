@@ -1,91 +1,816 @@
-# Algorithmes de Recherche de Chemin dans un Labyrinthe
+# R5.A.04 - Qualité Algorithmique : Algo 3 (BUT 3)
 
-## Description
-Cette application implémente et visualise différents algorithmes de recherche de chemin dans un labyrinthe. Elle permet de comparer les performances et les caractéristiques de plusieurs algorithmes populaires de pathfinding.
+Januzi Rinor
+BUT 3 Informatique
 
-## Algorithmes Implémentés
-- A* (A-Star)
-- Breadth-First Search (BFS)
-- Depth-First Search (DFS)
-- Dijkstra
-- Greedy Best-First Search
+---
 
-## Fonctionnalités
-- Génération de labyrinthes personnalisables
-- Visualisation en temps réel du processus de recherche
-- Comparaison des performances des différents algorithmes
-- Interface utilisateur interactive pour la création et la modification de labyrinthes
+## Introduction
 
-## Pour les Utilisateurs
+Ce projet implémente un système de résolution de labyrinthes avec une interface graphique interactive. Il utilise plusieurs algorithmes de recherche de chemin et permet de visualiser leur fonctionnement en temps réel.
 
-### Installation
-1. Assurez-vous d'avoir Java (version 8 ou supérieure) installé sur votre système.
-2. Téléchargez le fichier JAR de l'application depuis la section des releases.
-3. Double-cliquez sur le fichier JAR ou exécutez-le via la commande :
+## Structure du projet
+
+Le projet suit une architecture Modèle-Vue-Contrôleur (MVC) :
+
+![Architecture MVC](img/MVC.png)
+
+## Structure des fichiers
+
+Voici la structure des fichiers du projet :
+
 ```
-java -jar nom_du_fichier.jar
-```
-
-### Utilisation
-1. Lancez l'application.
-2. Créez un labyrinthe en utilisant les outils de l'interface :
-   - Cliquez pour placer des murs
-   - Définissez le point de départ et d'arrivée
-3. Choisissez un algorithme dans le menu déroulant.
-4. Cliquez sur "Démarrer" pour lancer la recherche.
-5. Observez le processus de recherche en temps réel.
-6. Consultez les statistiques de performance après la fin de la recherche.
-
-### Astuces
-- Utilisez le bouton "Réinitialiser" pour effacer le chemin et recommencer.
-- Expérimentez avec différentes configurations de labyrinthe pour voir comment les algorithmes se comportent.
-
-## Pour les Développeurs
-
-### Structure du Projet
-```
-project/
+C:.
+│   .gitignore
+│   README.md
 │
-├── src/
-│   ├── algorithms/
-│   │   ├── AStar.java
-│   │   ├── BreadthFirstSearch.java
-│   │   ├── DepthFirstSearch.java
-│   │   ├── Dijkstra.java
-│   │   └── GreedyBestFirstSearch.java
+├───src
+│   │   Main.java
 │   │
-│   ├── models/
-│   │   ├── Case.java
-│   │   └── Labyrinthe.java
+│   ├───algorithms
+│   │       AlgorithmStats.java
+│   │       AStar.java
+│   │       BreadthFirstSearch.java
+│   │       DepthFirstSearch.java
+│   │       Dijkstra.java
+│   │       GreedyBestFirstSearch.java
+│   │       IDAStar.java
+│   │       ManhattanHeuristic.java
 │   │
-│   ├── vues/
-│   │   ├── VueAffichage.java
-│   │   ├── VueBouttons.java
-│   │   ├── VueFenetre.java
-│   │   └── VueGrille.java
+│   ├───controleurs
+│   │       EcouteurAlgo.java
+│   │       EcouteurArrivee.java
+│   │       EcouteurDemarrer.java
+│   │       EcouteurDepart.java
+│   │       EcouteurGrille.java
+│   │       EcouteurMur.java
+│   │       EcouteurQuitter.java
+│   │       EcouteurVide.java
 │   │
-│   └── Main.java
-│
-└── test/
-└── [fichiers de test]
+│   ├───models
+│   │       Case.java
+│   │       Labyrinthe.java
+│   │
+│   ├───Test
+│   │       AStarTest.java
+│   │       BreadthFirstSearchTest.java
+│   │       DepthFirstSearchTest.java
+│   │       DijkstraTest.java
+│   │       GreedyBestFirstSearchTest.java
+│   │       IDAStarTest.java
+│   │
+│   └───vues
+│           VueAffichage.java
+│           VueBouttons.java
+│           VueFenetre.java
+│           VueGrille.java
 ```
 
-### Configuration de l'Environnement de Développement
+### Modèle
+
+#### Classe `Labyrinthe`
+
+Représente la structure du labyrinthe :
+
+```java
+public class Labyrinthe extends Observable {
+    private Case[][] grille;
+    private Case depart;
+    private Case arrivee;
+
+    // ...
+}
+```
+
+#### Classe `Case`
+
+Représente une cellule du labyrinthe :
+
+```java
+public class Case {
+    public enum Statut { MUR, DEPART, ARRIVEE, VIDE }
+    private int x, y;
+    private Statut statut;
+    private int cost;
+
+    // ...
+}
+```
+
+### Vue
+
+#### `VueFenetre`
+
+Crée et configure la fenêtre principale :
+
+```java
+public class VueFenetre {
+    private JFrame frame;
+    private Labyrinthe labyrinthe;
+
+    public VueFenetre() {
+        // Initialisation de l'interface...
+    }
+}
+```
+
+#### `VueGrille`
+
+Affiche le labyrinthe sous forme de grille de boutons :
+
+```java
+public class VueGrille extends JPanel implements Observer {
+    private JButton[][] buttons;
+
+    // ...
+
+    public void updateButtonColor(JButton button, Color color) {
+        if (button.getBackground() != Color.GREEN && button.getBackground() != Color.RED) {
+            button.setBackground(color);
+        }
+    }
+}
+```
+
+### Contrôleur
+
+Plusieurs classes d'écouteurs gèrent les interactions, par exemple :
+
+```java
+public class EcouteurDemarrer implements ActionListener {
+    // ...
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Logique de démarrage de l'algorithme...
+    }
+}
+```
+
+## Algorithmes de recherche
+
+Le projet implémente plusieurs algorithmes, dont :
+
+### Fonctionnement interne de A*
+
+```java
+public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
+    PriorityQueue<Case> frontier = new PriorityQueue<>(Comparator.comparingInt(c -> 
+        costSoFar.get(c) + ManhattanHeuristic.calculate(c, goal)));
+    Map<Case, Case> cameFrom = new HashMap<>();
+    Map<Case, Integer> costSoFar = new HashMap<>();
+
+    frontier.add(start);
+    cameFrom.put(start, null);
+    costSoFar.put(start, 0);
+
+    while (!frontier.isEmpty()) {
+        Case current = frontier.poll();
+        allVisited.add(current);
+        stats.incrementStatesGenerated();
+        updateUI(current, false);
+
+        if (current.equals(goal)) {
+            break;
+        }
+
+        for (Case next : getNeighbors(current, labyrinthe)) {
+            int newCost = costSoFar.get(current) + 1;
+            if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
+                costSoFar.put(next, newCost);
+                frontier.add(next);
+                cameFrom.put(next, current);
+            }
+        }
+    }
+
+    List<Case> shortestPath = reconstructPath(cameFrom, start, goal);
+    long endTime = System.currentTimeMillis();
+
+    stats.setExecutionTime(endTime - startTime);
+    stats.setSuccess(shortestPath != null);
+    stats.setPathLength(shortestPath != null ? shortestPath.size() - 1 : 0);
+
+    if (shortestPath != null) {
+        for (Case c : shortestPath) {
+            updateUI(c, true);
+        }
+    }
+
+    Map<String, Object> result = new HashMap<>();
+    result.put("shortestPath", shortestPath);
+    result.put("allVisited", allVisited);
+    result.put("stats", stats);
+    return result;
+}
+```
+
+**Explications :**
+- A* utilise une `PriorityQueue` pour sélectionner la case à explorer en priorité, en fonction d'une estimation heuristique (par exemple, la distance de Manhattan).
+- Deux maps sont utilisées : `cameFrom` pour enregistrer le chemin parcouru et `costSoFar` pour suivre le coût accumulé pour atteindre chaque case.
+- La fonction heuristique joue un rôle clé pour guider l'exploration en combinant le coût actuel et une estimation du coût restant jusqu'à l'objectif.
+
+### Fonctionnement interne de Breadth-First Search (BFS)
+
+```java
+public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
+    Queue<Case> frontier = new LinkedList<>();
+    Map<Case, Case> cameFrom = new HashMap<>();
+    Set<Case> allVisited = new HashSet<>();
+
+    frontier.add(start);
+    cameFrom.put(start, null);
+    allVisited.add(start);
+
+    while (!frontier.isEmpty()) {
+        Case current = frontier.poll();
+        stats.incrementStatesGenerated();
+        updateUI(current, false);
+
+        if (current.equals(goal)) {
+            break;
+        }
+
+        for (Case next : getNeighbors(current, labyrinthe)) {
+            if (!allVisited.contains(next)) {
+                frontier.add(next);
+                cameFrom.put(next, current);
+                allVisited.add(next);
+            }
+        }
+    }
+
+    List<Case> shortestPath = reconstructPath(cameFrom, start, goal);
+    long endTime = System.currentTimeMillis();
+
+    stats.setExecutionTime(endTime - startTime);
+    stats.setSuccess(shortestPath != null);
+    stats.setPathLength(shortestPath != null ? shortestPath.size() - 1 : 0);
+
+    if (shortestPath != null) {
+        shortestPath.forEach(c -> updateUI(c, true));
+    }
+
+    return Map.of(
+            "shortestPath", shortestPath,
+            "allVisited", new ArrayList<>(allVisited),
+            "stats", stats
+    );
+}
+```
+
+BFS utilise une Queue pour explorer les cases niveau par niveau.  
+Une map `cameFrom` est utilisée pour enregistrer le chemin parcouru.  
+Un Set `allVisited` est utilisé pour suivre les cases déjà explorées.
+
+### Fonctionnement interne de Depth-First Search (DFS)
+
+```java
+public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
+    Stack<Case> frontier = new Stack<>();
+    Map<Case, Case> cameFrom = new HashMap<>();
+    List<Case> allVisited = new ArrayList<>();
+
+    frontier.push(start);
+    cameFrom.put(start, null);
+
+    while (!frontier.isEmpty()) {
+        Case current = frontier.pop();
+        allVisited.add(current);
+        updateUI(current, false);
+        stats.incrementStatesGenerated();
+
+        if (current.equals(goal)) {
+            break;
+        }
+
+        for (Case next : getNeighbors(current, labyrinthe)) {
+            if (!cameFrom.containsKey(next)) {
+                frontier.push(next);
+                cameFrom.put(next, current);
+            }
+        }
+    }
+
+    List<Case> shortestPath = reconstructPath(cameFrom, start, goal);
+    long endTime = System.currentTimeMillis();
+
+    stats.setExecutionTime(endTime - startTime);
+    stats.setSuccess(shortestPath != null);
+    stats.setPathLength(shortestPath != null ? shortestPath.size() - 1 : 0);
+
+    if (shortestPath != null) {
+        shortestPath.forEach(c -> updateUI(c, true));
+    }
+
+    return Map.of(
+            "shortestPath", shortestPath,
+            "allVisited", allVisited,
+            "stats", stats
+    );
+}
+```
+
+DFS utilise une Stack pour explorer les cases en profondeur.  
+Une map `cameFrom` est utilisée pour enregistrer le chemin parcouru.  
+Une liste `allVisited` est utilisée pour suivre les cases déjà explorées.
+
+### Fonctionnement interne de Dijkstra
+
+```java
+public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
+    PriorityQueue<Case> frontier = new PriorityQueue<>(Comparator.comparingInt(Case::getCost));
+    Map<Case, Case> cameFrom = new HashMap<>();
+    Map<Case, Integer> costSoFar = new HashMap<>();
+
+    frontier.add(start);
+    cameFrom.put(start, null);
+    costSoFar.put(start, 0);
+
+    while (!frontier.isEmpty()) {
+        Case current = frontier.poll();
+        allVisited.add(current);
+        updateUI(current, false);
+        stats.incrementStatesGenerated();
+
+        if (current.equals(goal)) {
+            break;
+        }
+
+        for (Case next : getNeighbors(current, labyrinthe)) {
+            int newCost = costSoFar.get(current) + 1;
+            if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
+                costSoFar.put(next, newCost);
+                next.setCost(newCost);
+                frontier.add(next);
+                cameFrom.put(next, current);
+            }
+        }
+    }
+
+    List<Case> shortestPath = reconstructPath(cameFrom, start, goal);
+    long endTime = System.currentTimeMillis();
+
+    stats.setExecutionTime(endTime - startTime);
+    stats.setSuccess(shortestPath != null);
+    stats.setPathLength(shortestPath != null ? shortestPath.size() - 1 : 0);
+
+    if (shortestPath != null) {
+        shortestPath.forEach(c -> updateUI(c, true));
+    }
+
+    return Map.of(
+            "shortestPath", shortestPath,
+            "allVisited", allVisited,
+            "stats", stats
+    );
+}
+```
+
+Dijkstra utilise une `PriorityQueue` pour explorer les cases en fonction de leur coût accumulé.  
+Deux maps sont utilisées : `cameFrom` pour enregistrer le chemin parcouru et `costSoFar` pour suivre le coût accumulé pour atteindre chaque case.
+
+### Fonctionnement interne de Greedy Best-First Search
+
+```java
+public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
+    PriorityQueue<Case> frontier = new PriorityQueue<>(Comparator.comparingInt(c -> ManhattanHeuristic.calculate(c, goal)));
+    Map<Case, Case> cameFrom = new HashMap<>();
+
+    frontier.add(start);
+    cameFrom.put(start, null);
+
+    while (!frontier.isEmpty()) {
+        Case current = frontier.poll();
+        allVisited.add(current);
+        updateUI(current, false);
+        stats.incrementStatesGenerated();
+
+        if (current.equals(goal)) {
+            bestPath = reconstructPath(cameFrom, start, goal);
+            break;
+        }
+
+        for (Case next : getNeighbors(current, labyrinthe)) {
+            if (!cameFrom.containsKey(next)) {
+                frontier.add(next);
+                cameFrom.put(next, current);
+            }
+        }
+    }
+
+    long endTime = System.currentTimeMillis();
+    stats.setExecutionTime(endTime - startTime);
+    stats.setSuccess(bestPath != null);
+    stats.setPathLength(bestPath != null ? bestPath.size() - 1 : 0);
+
+    if (bestPath != null) {
+        bestPath.forEach(c -> updateUI(c, true));
+    }
+
+    return Map.of(
+            "shortestPath", bestPath,
+            "allVisited", allVisited,
+            "stats", stats
+    );
+}
+```
+
+Greedy Best-First Search utilise une `PriorityQueue` pour explorer les cases en fonction de l'estimation heuristique de la distance jusqu'à l'objectif.  
+Une map `cameFrom` est utilisée pour enregistrer le chemin parcouru.
+
+### Fonctionnement interne de IDA*
+
+```java
+public Map<String, Object> search(Labyrinthe labyrinthe, Case start, Case goal) {
+    int threshold = ManhattanHeuristic.calculate(start, goal);
+
+    while (true) {
+        SearchResult result = search(start, 0, threshold, goal, labyrinthe, new HashSet<>(), allVisited);
+        if (result.found) {
+            bestPath = result.path;
+            break;
+        }
+        if (result.cost == Integer.MAX_VALUE) {
+            break;
+        }
+        threshold = result.cost;
+    }
+
+    long endTime = System.currentTimeMillis();
+    stats.setExecutionTime(endTime - startTime);
+    stats.setSuccess(bestPath != null);
+    stats.setPathLength(bestPath != null ? bestPath.size() - 1 : 0);
+
+    if (bestPath != null) {
+        bestPath.forEach(c -> updateUI(c, true, allVisited));
+    }
+
+    return Map.of(
+            "shortestPath", bestPath,
+            "allVisited", allVisited,
+            "stats", stats
+    );
+}
+```
+
+IDA* utilise une approche itérative pour explorer les cases en profondeur, en ajustant dynamiquement le seuil de coût.  
+Une map `cameFrom` est utilisée pour enregistrer le chemin parcouru.  
+La fonction heuristique joue un rôle clé pour guider l'exploration en combinant le coût actuel et une estimation du coût restant jusqu'à l'objectif.
+
+---
+
+## Tests
+
+Des tests unitaires ont été écrits pour vérifier le bon fonctionnement des algorithmes et de l'interface utilisateur. Les tests peuvent être exécutés avec JUnit.
+
+### Explications des tests
+
+Chaque algorithme de recherche a été testé pour s'assurer qu'il fonctionne correctement dans différents scénarios. Voici les détails des tests effectués :
+
+### Tests pour A*
+
+```java
+class AStarTest {
+
+    private AStar aStar;
+    private Labyrinthe labyrinthe;
+    private VueGrille vueGrille;
+
+    @BeforeEach
+    void setUp() {
+        labyrinthe = new Labyrinthe(5, 5);
+        vueGrille = new VueGrille(5, 5, labyrinthe);
+        aStar = new AStar(vueGrille);
+    }
+
+    @Test
+    void testPathFound() {
+        Case start = labyrinthe.getCase(0, 0);
+        Case goal = labyrinthe.getCase(4, 4);
+        Map<String, Object> result = aStar.search(labyrinthe, start, goal);
+        // ...
+    }
+
+    @Test
+    void testStartEqualsGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        Map<String, Object> result = aStar.search(labyrinthe, start, start);
+        // ...
+    }
+
+    @Test
+    void testNullStartOrGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        assertThrows(IllegalArgumentException.class, () -> {
+            aStar.search(labyrinthe, null, start);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            aStar.search(labyrinthe, start, null);
+        });
+    }
+}
+```
+
+**Explications :**
+- `testPathFound()`: Vérifie que l'algorithme trouve un chemin valide entre deux points distincts.
+- `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
+- `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
+
+### Tests pour Breadth-First Search (BFS)
+
+```java
+class BreadthFirstSearchTest {
+
+    private BreadthFirstSearch bfs;
+    private Labyrinthe labyrinthe;
+    private VueGrille vueGrille;
+
+    @BeforeEach
+    void setUp() {
+        labyrinthe = new Labyrinthe(5, 5);
+        vueGrille = new VueGrille(5, 5, labyrinthe);
+        bfs = new BreadthFirstSearch(vueGrille);
+    }
+
+    @Test
+    void testPathFound() {
+        Case start = labyrinthe.getCase(0, 0);
+        Case goal = labyrinthe.getCase(4, 4);
+        Map<String, Object> result = bfs.search(labyrinthe, start, goal);
+        // ...
+    }
+
+    @Test
+    void testStartEqualsGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        Map<String, Object> result = bfs.search(labyrinthe, start, start);
+        // ...
+    }
+
+    @Test
+    void testNullStartOrGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        assertThrows(IllegalArgumentException.class, () -> {
+            bfs.search(labyrinthe, null, start);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            bfs.search(labyrinthe, start, null);
+        });
+    }
+}
+```
+
+**Explications :**
+- `testPathFound()`: Vérifie que l'algorithme trouve un chemin valide entre deux points distincts.
+- `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
+- `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
+
+### Tests pour Depth-First Search (DFS)
+
+```java
+class DepthFirstSearchTest {
+
+    private DepthFirstSearch dfs;
+    private Labyrinthe labyrinthe;
+    private VueGrille vueGrille;
+
+    @BeforeEach
+    void setUp() {
+        labyrinthe = new Labyrinthe(5, 5);
+        vueGrille = new VueGrille(5, 5, labyrinthe);
+        dfs = new DepthFirstSearch(vueGrille);
+    }
+
+    @Test
+    void testPathFound() {
+        Case start = labyrinthe.getCase(0, 0);
+        Case goal = labyrinthe.getCase(4, 4);
+        Map<String, Object> result = dfs.search(labyrinthe, start, goal);
+        // ...
+    }
+
+    @Test
+    void testStartEqualsGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        Map<String, Object> result = dfs.search(labyrinthe, start, start);
+        // ...
+    }
+
+    @Test
+    void testNullStartOrGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        assertThrows(IllegalArgumentException.class, () -> {
+            dfs.search(labyrinthe, null, start);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            dfs.search(labyrinthe, start, null);
+        });
+    }
+}
+```
+
+**Explications :**
+- `testPathFound()`: Vérifie que l'algorithme trouve un chemin valide entre deux points distincts.
+- `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
+- `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
+
+### Tests pour Dijkstra
+
+```java
+class DijkstraTest {
+
+    private Dijkstra dijkstra;
+    private Labyrinthe labyrinthe;
+    private VueGrille vueGrille;
+
+    @BeforeEach
+    void setUp() {
+        labyrinthe = new Labyrinthe(5, 5);
+        vueGrille = new VueGrille(5, 5, labyrinthe);
+        dijkstra = new Dijkstra(vueGrille);
+    }
+
+    @Test
+    void testPathFound() {
+        Case start = labyrinthe.getCase(0, 0);
+        Case goal = labyrinthe.getCase(4, 4);
+        Map<String, Object> result = dijkstra.search(labyrinthe, start, goal);
+        // ...
+    }
+
+    @Test
+    void testStartEqualsGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        Map<String, Object> result = dijkstra.search(labyrinthe, start, start);
+        // ...
+    }
+
+    @Test
+    void testNullStartOrGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        assertThrows(IllegalArgumentException.class, () -> {
+            dijkstra.search(labyrinthe, null, start);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            dijkstra.search(labyrinthe, start, null);
+        });
+    }
+}
+```
+
+**Explications :**
+- `testPathFound()`: Vérifie que l'algorithme trouve un chemin valide entre deux points distincts.
+- `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
+- `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
+
+### Tests pour Greedy Best-First Search (GBFS)
+
+```java
+class GreedyBestFirstSearchTest {
+
+    private GreedyBestFirstSearch gbfs;
+    private Labyrinthe labyrinthe;
+    private VueGrille vueGrille;
+
+    @BeforeEach
+    void setUp() {
+        labyrinthe = new Labyrinthe(5, 5);
+        vueGrille = new VueGrille(5, 5, labyrinthe);
+        gbfs = new GreedyBestFirstSearch(vueGrille);
+    }
+
+    @Test
+    void testPathFound() {
+        Case start = labyrinthe.getCase(0, 0);
+        Case goal = labyrinthe.getCase(4, 4);
+        Map<String, Object> result = gbfs.search(labyrinthe, start, goal);
+        // ...
+    }
+
+    @Test
+    void testStartEqualsGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        Map<String, Object> result = gbfs.search(labyrinthe, start, start);
+        // ...
+    }
+
+    @Test
+    void testNullStartOrGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        assertThrows(IllegalArgumentException.class, () -> {
+            gbfs.search(labyrinthe, null, start);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            gbfs.search(labyrinthe, start, null);
+        });
+    }
+}
+```
+
+**Explications :**
+- `testPathFound()`: Vérifie que l'algorithme trouve un chemin valide entre deux points distincts.
+- `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
+- `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
+
+### Tests pour IDA*
+
+```java
+class IDAStarTest {
+
+    private IDAStar idaStar;
+    private Labyrinthe labyrinthe;
+    private VueGrille vueGrille;
+
+    @BeforeEach
+    void setUp() {
+        this.labyrinthe = new Labyrinthe(5, 5);
+        this.vueGrille = new VueGrille(5, 5, this.labyrinthe);
+        this.idaStar = new IDAStar(this.vueGrille);
+    }
+
+    @Test
+    void testPathFound() {
+        Case start = labyrinthe.getCase(0, 0);
+        Case goal = labyrinthe.getCase(4, 4);
+        Map<String, Object> result = idaStar.search(labyrinthe, start, goal);
+        // ...
+    }
+
+    @Test
+    void testStartEqualsGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        Map<String, Object> result = idaStar.search(labyrinthe, start, start);
+        // ...
+    }
+
+    @Test
+    void testNullStartOrGoal() {
+        Case start = labyrinthe.getCase(0, 0);
+        assertThrows(IllegalArgumentException.class, () -> {
+            idaStar.search(labyrinthe, null, start);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            idaStar.search(labyrinthe, start, null);
+        });
+    }
+}
+```
+
+**Explications :**
+- `testPathFound()`: Vérifie que l'algorithme trouve un chemin valide entre deux points distincts.
+- `testStartEqualsGoal()`: Vérifie que l'algorithme gère correctement le cas où le point de départ est le même que le point d'arrivée.
+- `testNullStartOrGoal()`: Vérifie que l'algorithme lance une exception appropriée lorsque le point de départ ou le point d'arrivée est nul.
+
+---
+
+
+### Comparaison des algorithmes
+
+| **Algorithme**  | **Complexité** | **Cas d'utilisation**                        |
+|-----------------|----------------|----------------------------------------------|
+| **A***          | \( O(b^d) \)   | Recherche informée efficace                  |
+| **BFS**         | \( O(b^d) \)   | Chemin le plus court en nombre d'étapes      |
+| **DFS**         | \( O(b^m) \)   | Exploration en profondeur, économe en mémoire |
+| **Dijkstra**    | \( O(V^2) \)   | Chemin le plus court avec poids              |
+| **Greedy BFS**  | \( O(b^m) \)   | Rapide mais peut manquer le chemin optimal   |
+| **IDA***        | \( O(b^d) \)   | Comme A*, mais avec moins de mémoire        |
+
+## Fonctionnalités clés
+
+1. **Création interactive du labyrinthe** : L'utilisateur peut placer des murs, définir le départ et l'arrivée.
+2. **Sélection d'algorithme** : Choix parmi plusieurs algorithmes via une liste déroulante.
+3. **Visualisation en temps réel** : L'exploration du labyrinthe est visible à chaque étape.
+
+### Capture d'écran
+
+![Capture d'écran de l'interface](img/Labyrinthe_screen.png)
+
+## Installation et exécution
+
 1. Clonez le dépôt :
-```
-git clone https://github.com/JRinor/Labyrinthe.git
-```
-2. Ouvrez le projet dans votre IDE préféré (Eclipse, IntelliJ IDEA, etc.).
-3. Assurez-vous que le JDK (version 8 ou supérieure) est correctement configuré.
+   ```bash
+   git clone https://github.com/JRinor/Labyrinthe.git
+   cd Labyrinthe
+   ```)à
 
-### Compilation
-Utilisez votre IDE ou compilez via la ligne de commande :
-```
-javac -d bin src/**/*.java
-```
+2. Compilez et exécutez le projet :
+   ```bash
+   javac -d bin src/**/*.java
+   java -cp bin Main
+   ```
 
-### Exécution des Tests
-Les tests unitaires sont situés dans le dossier `test/`. Exécutez-les via votre IDE ou en utilisant JUnit en ligne de commande.
+## Exemples d'utilisation
+
+### Création d'un labyrinthe
+
+1. Cliquez sur les boutons pour placer des murs, définir le départ et l'arrivée.
+2. Sélectionnez un algorithme dans la liste déroulante.
+3. Cliquez sur "Démarrer" pour lancer l'algorithme et visualiser le chemin trouvé.
+
+### Exemple d'utilisation avec l'algorithme A*
+
+![Exemple d'utilisation avec A*](img/AStar.png)
 
 
+![Exemple de sortie du terminal](img/Sortie.png)
 
